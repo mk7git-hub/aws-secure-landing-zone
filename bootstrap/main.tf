@@ -198,6 +198,14 @@ resource "aws_iam_role_policy" "ci" {
         Resource = [aws_s3_bucket.state.arn, "${aws_s3_bucket.state.arn}/*", aws_dynamodb_table.lock.arn, aws_kms_key.state.arn]
       },
       {
+        # Added after the first apply: AccessDenied on the root-usage alarm, the password policy and
+        # the Security Hub EventBridge rule. Least privilege means growing the policy from real errors.
+        Sid      = "MonitoringAndAccountGuardrails"
+        Effect   = "Allow"
+        Action   = ["cloudwatch:*", "events:*", "iam:GetAccountPasswordPolicy", "iam:UpdateAccountPasswordPolicy", "iam:DeleteAccountPasswordPolicy"]
+        Resource = "*"
+      },
+      {
         Sid    = "ManagedServices"
         Effect = "Allow"
         Action = [
