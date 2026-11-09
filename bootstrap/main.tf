@@ -18,6 +18,12 @@ data "aws_caller_identity" "me" {}
 locals {
   tags       = { Project = var.project, Owner = var.owner, ManagedBy = "terraform", Environment = "bootstrap" }
   state_name = "${var.project}-tfstate-${data.aws_caller_identity.me.account_id}"
+  # Since July 2026 GitHub puts immutable IDs in the OIDC subject for new repos:
+  # repo:<owner>@<owner_id>/<repo>@<repo_id>:<context>. IDs stop a deleted-and-recreated
+  # repo with the same name from inheriting this trust.
+  gh_owner = split("/", var.github_repo)[0]
+  gh_name  = split("/", var.github_repo)[1]
+  gh_sub   = "repo:${local.gh_owner}@${var.github_owner_id}/${local.gh_name}@${var.github_repo_id}"
 }
 
 resource "aws_kms_key" "state" {
@@ -133,9 +139,9 @@ data "aws_iam_policy_document" "trust" {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:${var.github_repo}:ref:refs/heads/main",
-        "repo:${var.github_repo}:pull_request",
-        "repo:${var.github_repo}:environment:dev",
+        "${local.gh_sub}:ref:refs/heads/main",
+        "${local.gh_sub}:pull_request",
+        "${local.gh_sub}:environment:dev",
       ]
     }
   }
