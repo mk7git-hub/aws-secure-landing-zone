@@ -1,0 +1,11 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.terraform.lock.hcl.bak
+terraform.tfvars
+crash.log
+
+# private build notes (stay on your PC)
+docs/NOTES.md
