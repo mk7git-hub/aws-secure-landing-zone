@@ -81,13 +81,31 @@ Tear down: run the **destroy** workflow, then `terraform destroy` in `bootstrap/
 
 ## Evidence
 
-Screenshots in `docs/img/` after the first apply:
+Deployed to a dedicated AWS account through the pipeline above.
 
-- `pipeline.png`: green pipeline run with the plan comment
-- `checkov.png`: Security tab with zero open findings
-- `securityhub.png`: Security Hub security score per standard
-- `guardduty.png`: GuardDuty sample findings (Settings → Generate sample findings)
-- `config.png`: Config rules compliance dashboard
+**Pipeline:** lint and scan, then an apply gated on manual approval in the `dev` environment.
+
+![Pipeline run with approval](docs/img/pipeline.png)
+
+**Plan reviewed on the pull request before merge:**
+
+![Terraform plan on the pull request](docs/img/plan.png)
+
+**CloudTrail:** multi-region, KMS-encrypted, log file validation on.
+
+![CloudTrail trail details](docs/img/cloudtrail.png)
+
+**GuardDuty** with sample findings generated to verify detection and alert routing:
+
+![GuardDuty findings](docs/img/guardduty.png)
+
+### What broke on the first deploy, and the fixes
+
+| Failure | Cause | Fix |
+| --- | --- | --- |
+| TFLint failed | Modules did not declare Terraform and provider versions | `versions.tf` in every module |
+| OIDC "Not authorized to perform sts:AssumeRoleWithWebIdentity" | Since July 2026 GitHub puts immutable owner and repo IDs in the OIDC `sub` claim for new repos | Trust policy matches `repo:<owner>@<id>/<repo>@<id>:...` |
+| AccessDenied on CloudWatch alarm, password policy, EventBridge rule | Least-privilege CI role lacked those three actions | Granted exactly those actions; the boundary still denies the dangerous ones |
 
 ## Roadmap
 
