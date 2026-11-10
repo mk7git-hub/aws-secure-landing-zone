@@ -99,6 +99,16 @@ Deployed to a dedicated AWS account through the pipeline above.
 
 ![GuardDuty findings](docs/img/guardduty.png)
 
+**Security Hub compliance scores** about a day after deploy (the account is a fresh lab; the remaining failed controls are tracked as findings, not hidden):
+
+| Standard | Score |
+| --- | --- |
+| AWS Foundational Security Best Practices v1.0.0 | 92% |
+| NIST SP 800-53 Rev 5 | 93% |
+| CIS AWS Foundations Benchmark v3.0.0 | 76% |
+
+![Security Hub standards and scores](docs/img/securityhub.png)
+
 ### What broke on the first deploy, and the fixes
 
 | Failure | Cause | Fix |
